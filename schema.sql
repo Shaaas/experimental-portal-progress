@@ -1,1 +1,2 @@
+-- PostgreSQL schema coming soon
 
