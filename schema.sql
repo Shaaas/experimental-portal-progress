@@ -1,4 +1,4 @@
--- PostgreSQL schema coming soon
+-- PostgreSQL schema 
 CREATE TABLE submissions (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
