@@ -1,68 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Experimental Portal</title>
-<style>
-  body { font-family: sans-serif; padding: 2rem; }
-  input, textarea { display:block; margin:1rem 0; width: 300px; padding:0.5rem; }
-  button { padding: 0.5rem 1rem; cursor:pointer; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experimental Portal</title>
+    <style>
+        body { font-family: sans-serif; padding: 2rem; background: #f0f2f5; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        input, textarea { display:block; margin:1rem 0; width: 100%; padding:0.7rem; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { padding: 0.7rem 1.5rem; background: #007bff; color: white; border: none; border-radius: 5px; cursor:pointer; width: 100%; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        .submission-item { background: #fff; border-left: 5px solid #007bff; margin: 10px 0; padding: 10px; border-bottom: 1px solid #eee; }
+    </style>
 </head>
 <body>
-<h1>Submit Your Experiment</h1>
-<form id="experimentForm">
-  <input name="name" placeholder="Name" required />
-  <input name="email" type="email" placeholder="Email" required />
-  <textarea name="message" placeholder="Your idea..." required></textarea>
-  <button type="submit">Send</button>
-</form>
 
-<h2>Submissions</h2>
-<ul id="submissionsList"></ul>
+<div class="container">
+    <h1>Submit Your Experiment</h1>
+    <form id="experimentForm">
+        <input name="name" placeholder="Name" required />
+        <input name="email" type="email" placeholder="Email" required />
+        <textarea name="message" placeholder="Your idea..." rows="4" required></textarea>
+        <button type="submit" id="submitBtn">Send</button>
+    </form>
+
+    <h2>Submissions</h2>
+    <div id="submissionsList">Loading...</div>
+</div>
 
 <script>
-const backendURL = "https://YOUR_RENDER_URL"; // replace with your Render URL
+    // YOUR LIVE RENDER URL
+    const backendURL = "https://experimental-portal-progress.onrender.com"; 
 
-document.getElementById("experimentForm").onsubmit = async (e) => {
-  e.preventDefault();
-  const form = e.target;
-  const data = {
-    name: form.name.value,
-    email: form.email.value,
-    message: form.message.value
-  };
+    const form = document.getElementById("experimentForm");
+    const list = document.getElementById("submissionsList");
 
-  const res = await fetch(`${backendURL}/submit`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
+    async function loadSubmissions() {
+        try {
+            const res = await fetch(`${backendURL}/submissions`);
+            const data = await res.json();
+            list.innerHTML = "";
+            if(data.length === 0) list.innerHTML = "No ideas yet. Be the first!";
+            data.reverse().forEach(s => {
+                const div = document.createElement("div");
+                div.className = "submission-item";
+                div.innerHTML = `<strong>${s.name}</strong>: ${s.message}`;
+                list.appendChild(div);
+            });
+        } catch (e) {
+            list.innerHTML = "Backend is starting up... please refresh in 30 seconds.";
+        }
+    }
 
-  if(res.ok){
-    alert("Submitted ✨");
-    form.reset();
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.innerText = "Sending...";
+
+        const payload = {
+            name: form.name.value,
+            email: form.email.value,
+            message: form.message.value
+        };
+
+        try {
+            const res = await fetch(`${backendURL}/submit`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if(res.ok) {
+                form.reset();
+                loadSubmissions();
+            }
+        } catch (err) {
+            alert("Submission failed. Check console.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Send";
+        }
+    };
+
     loadSubmissions();
-  } else {
-    alert("Error submitting 😞");
-  }
-};
-
-// Optional: load all submissions
-async function loadSubmissions(){
-  const res = await fetch(`${backendURL}/submissions`);
-  const submissions = await res.json();
-  const list = document.getElementById("submissionsList");
-  list.innerHTML = "";
-  submissions.forEach(s => {
-    const li = document.createElement("li");
-    li.textContent = `${s.name} (${s.email}): ${s.message}`;
-    list.appendChild(li);
-  });
-}
-
-// Load submissions on page load
-loadSubmissions();
 </script>
 </body>
 </html>
