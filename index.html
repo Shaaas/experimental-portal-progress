@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Experimental Portal | Full-Stack Portfolio</title>
+    <title>Experimental Portal | Portfolio Edition</title>
     <style>
         :root {
             --primary: #6366f1;
@@ -11,6 +11,7 @@
             --card: #1e293b;
             --text: #f8fafc;
             --accent: #10b981;
+            --error: #ef4444;
         }
 
         body { 
@@ -27,18 +28,17 @@
             flex-wrap: wrap;
         }
 
-        /* LEFT PANEL: INPUT */
+        /* PANELS */
         .panel-form { 
-            flex: 1; min-width: 320px;
+            flex: 1; min-width: 340px;
             background: var(--card); 
             padding: 2rem; border-radius: 16px; 
             height: fit-content; position: sticky; top: 2rem;
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* RIGHT PANEL: FEED */
         .panel-feed {
-            flex: 1.5; min-width: 320px;
+            flex: 1.5; min-width: 340px;
             background: rgba(30, 41, 59, 0.3);
             padding: 2rem; border-radius: 16px;
             border: 1px solid rgba(255,255,255,0.05);
@@ -47,32 +47,58 @@
 
         h1, h2 { color: var(--primary); margin-top: 0; font-weight: 800; }
         
+        /* FORM STYLING & VALIDATION */
+        .input-group { margin-bottom: 1.2rem; }
+
         input, textarea { 
-            width: 100%; padding: 12px; margin-bottom: 1rem;
+            width: 100%; padding: 12px;
             background: #0f172a; border: 1px solid #334155;
             border-radius: 8px; color: white; box-sizing: border-box;
-            transition: 0.3s;
+            transition: 0.3s; font-size: 0.95rem;
         }
 
         input:focus, textarea:focus { outline: none; border-color: var(--primary); }
 
+        /* Validation Styles */
+        input.invalid, textarea.invalid { 
+            border-color: var(--error); 
+            animation: shake 0.2s ease-in-out 0s 2;
+        }
+
+        .error-msg {
+            color: var(--error); font-size: 0.75rem;
+            display: block; margin-top: 4px;
+            opacity: 0; transition: 0.3s; height: 0;
+        }
+
+        .error-active { opacity: 1; height: auto; margin-bottom: 8px; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
         button { 
-            width: 100%; padding: 12px; background: var(--primary); 
+            width: 100%; padding: 14px; background: var(--primary); 
             color: white; border: none; border-radius: 8px; 
             font-weight: bold; cursor: pointer; transition: 0.2s;
+            font-size: 1rem; margin-top: 10px;
         }
 
         button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button:disabled { background: #475569; cursor: not-allowed; }
 
-        /* SYSTEM LOG STYLE */
+        /* SYSTEM LOG */
         #systemLog {
             margin-top: 1.5rem; font-family: 'Courier New', monospace;
             font-size: 0.7rem; color: var(--accent);
             background: #000; padding: 12px; border-radius: 6px;
-            height: 100px; overflow-y: auto; border: 1px solid #334155;
+            height: 110px; overflow-y: auto; border: 1px solid #334155;
+            line-height: 1.4;
         }
 
-        /* SUBMISSION CARDS */
+        /* FEED CARDS */
         .submission-item { 
             background: var(--card); padding: 1.2rem;
             border-radius: 12px; margin-bottom: 1rem;
@@ -85,11 +111,11 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        .meta { font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px; font-weight: bold; }
+        .meta { font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px; font-weight: bold; letter-spacing: 0.05em; }
 
-        /* SKELETON LOADING ANIMATION */
+        /* SKELETON */
         .skeleton {
-            height: 80px; width: 100%;
+            height: 85px; width: 100%;
             background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
             background-size: 200% 100%;
             animation: loading 1.5s infinite;
@@ -100,33 +126,6 @@
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
-        /* Error message styling */
-.error-msg {
-    color: #ef4444;
-    font-size: 0.7rem;
-    display: block;
-    margin-top: -12px;
-    margin-bottom: 10px;
-    height: 14px; /* Prevents layout jumping */
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-/* Highlight input when invalid */
-input.invalid, textarea.invalid {
-    border-color: #ef4444 !important;
-    animation: shake 0.2s ease-in-out 0s 2;
-}
-
-@keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(5px); }
-    50% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-    100% { transform: translateX(0); }
-}
-
-.error-active { opacity: 1; }
     </style>
 </head>
 <body>
@@ -134,23 +133,24 @@ input.invalid, textarea.invalid {
 <div class="dashboard">
     <div class="panel-form">
         <h1>🧪 Lab Console</h1>
-       <form id="experimentForm" novalidate> <div class="input-group">
-        <input name="name" id="nameInput" placeholder="Lead Researcher Name" required />
-        <small class="error-msg" id="nameError"></small>
-    </div>
+        <form id="experimentForm" novalidate>
+            <div class="input-group">
+                <input name="name" id="nameInput" placeholder="Lead Researcher Name" required />
+                <small class="error-msg" id="nameError"></small>
+            </div>
 
-    <div class="input-group">
-        <input name="email" id="emailInput" type="email" placeholder="Researcher Email" required />
-        <small class="error-msg" id="emailError"></small>
-    </div>
+            <div class="input-group">
+                <input name="email" id="emailInput" type="email" placeholder="Researcher Email" required />
+                <small class="error-msg" id="emailError"></small>
+            </div>
 
-    <div class="input-group">
-        <textarea name="message" id="messageInput" placeholder="Hypothesis details..." rows="5" required></textarea>
-        <small class="error-msg" id="messageError"></small>
-    </div>
+            <div class="input-group">
+                <textarea name="message" id="messageInput" placeholder="Hypothesis or Idea details..." rows="5" required></textarea>
+                <small class="error-msg" id="messageError"></small>
+            </div>
 
-    <button type="submit" id="submitBtn">Transmit Data</button>
-</form>
+            <button type="submit" id="submitBtn">Transmit Data</button>
+        </form>
 
         <div id="systemLog">
             [SYSTEM]: Initialize uplink...<br>
@@ -179,13 +179,22 @@ input.invalid, textarea.invalid {
         log.innerHTML = `[${time}] ${msg}<br>` + log.innerHTML;
     }
 
+    // HELPER: Show Validation Errors
+    function showError(field, msg) {
+        const input = form[field];
+        const errorLabel = document.getElementById(`${field}Error`);
+        input.classList.add('invalid');
+        errorLabel.textContent = msg;
+        errorLabel.classList.add('error-active');
+    }
+
     async function loadSubmissions() {
         addLog("GET /submissions: Requesting data...");
         try {
             const res = await fetch(`${backendURL}/submissions`);
             const data = await res.json();
             
-            list.innerHTML = ""; // Clear skeletons
+            list.innerHTML = ""; 
             if(data.length === 0) {
                 list.innerHTML = "<p style='text-align:center; color:#64748b;'>Database empty. Standing by.</p>";
             }
@@ -196,69 +205,79 @@ input.invalid, textarea.invalid {
                 div.innerHTML = `<div class="meta">${s.name.toUpperCase()} // RESEARCHER</div><div>${s.message}</div>`;
                 list.appendChild(div);
             });
-            addLog("SUCCESS: Data rendered to feed.");
+            addLog("SUCCESS: Data synced.");
         } catch (e) {
-            addLog("ERROR: Backend unreachable. Service may be sleeping.");
+            addLog("ERROR: Connection failed. Server spin-up required.");
             list.innerHTML = "<p style='color: #ef4444; text-align:center;'>Uplink Interrupted. Reconnecting...</p>";
         }
     }
 
     form.onsubmit = async (e) => {
-    e.preventDefault();
-    
-    // 1. Reset previous errors
-    const inputs = [form.name, form.email, form.message];
-    let isFormValid = true;
+        e.preventDefault();
+        
+        // 1. Reset Errors
+        const inputs = [form.name, form.email, form.message];
+        let isFormValid = true;
+        inputs.forEach(input => {
+            input.classList.remove('invalid');
+            const err = document.getElementById(`${input.name}Error`);
+            err.textContent = "";
+            err.classList.remove('error-active');
+        });
 
-    inputs.forEach(input => {
-        input.classList.remove('invalid');
-        document.getElementById(`${input.name}Error`).textContent = "";
-        document.getElementById(`${input.name}Error`).classList.remove('error-active');
-    });
+        // 2. Validation Logic
+        if (form.name.value.trim().length < 2) {
+            showError('name', "Identity required (min 2 chars).");
+            isFormValid = false;
+        }
+        if (!form.email.value.includes('@') || form.email.value.length < 5) {
+            showError('email', "Valid comms address required.");
+            isFormValid = false;
+        }
+        if (form.message.value.trim().length < 10) {
+            showError('message', "Detail insufficient for hypothesis.");
+            isFormValid = false;
+        }
 
-    // 2. Run Validations
-    if (form.name.value.trim().length < 2) {
-        showError('name', "Name must be at least 2 characters.");
-        isFormValid = false;
-    }
+        if (!isFormValid) {
+            addLog("SYSTEM: Data integrity check failed.");
+            return;
+        }
 
-    if (!form.email.value.includes('@')) {
-        showError('email', "Please enter a valid researcher email.");
-        isFormValid = false;
-    }
+        // 3. Submit
+        const btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.innerText = "Transmitting...";
+        addLog("POST /submit: Payload verified.");
 
-    if (form.message.value.trim().length < 10) {
-        showError('message', "Hypothesis is too short (min 10 chars).");
-        isFormValid = false;
-    }
+        const payload = {
+            name: form.name.value,
+            email: form.email.value,
+            message: form.message.value
+        };
 
-    // 3. Stop if invalid
-    if (!isFormValid) {
-        addLog("SYSTEM: Validation failed. Aborting transmission.");
-        return;
-    }
+        try {
+            const res = await fetch(`${backendURL}/submit`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
 
-    // 4. If valid, proceed with Fetch (Existing Code)
-    const btn = document.getElementById("submitBtn");
-    btn.disabled = true;
-    btn.innerText = "Transmitting...";
-    addLog("POST /submit: Payload verified. Sending...");
-
-    // ... (Your existing fetch code goes here) ...
-};
-
-// Helper function to show errors
-function showError(field, msg) {
-    const input = form[field];
-    const errorLabel = document.getElementById(`${field}Error`);
-    input.classList.add('invalid');
-    errorLabel.textContent = msg;
-    errorLabel.classList.add('error-active');
-}
+            if(res.ok) {
+                addLog("SUCCESS: Transmission complete.");
+                form.reset();
+                loadSubmissions();
+            }
+        } catch (err) {
+            addLog("CRITICAL: Network uplink lost.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Transmit Data";
+        }
     };
 
     // Initial Load
-    setTimeout(loadSubmissions, 1000); // Small delay to show off the skeleton effect
+    setTimeout(loadSubmissions, 800);
 </script>
 </body>
 </html>
