@@ -3,106 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Experimental Portal | Dashboard</title>
+    <title>Experimental Portal | Full-Stack Portfolio</title>
     <style>
         :root {
             --primary: #6366f1;
             --bg: #0f172a;
             --card: #1e293b;
             --text: #f8fafc;
+            --accent: #10b981;
         }
 
         body { 
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Inter', -apple-system, sans-serif; 
             background-color: var(--bg); 
             color: var(--text);
-            margin: 0;
-            padding: 2rem;
-            display: flex;
-            justify-content: center;
+            margin: 0; padding: 2rem;
+            display: flex; justify-content: center;
         }
 
-        /* The Main Layout Wrapper */
         .dashboard {
-            display: flex;
-            gap: 2rem;
-            width: 100%;
-            max-width: 1000px;
-            flex-wrap: wrap; /* Stacks on mobile */
+            display: flex; gap: 2rem;
+            width: 100%; max-width: 1100px;
+            flex-wrap: wrap;
         }
 
-        /* Left Side: The Form */
+        /* LEFT PANEL: INPUT */
         .panel-form { 
-            flex: 1;
-            min-width: 320px;
+            flex: 1; min-width: 320px;
             background: var(--card); 
-            padding: 2rem; 
-            border-radius: 16px; 
-            height: fit-content;
-            position: sticky; /* Stays in place while scrolling */
-            top: 2rem;
+            padding: 2rem; border-radius: 16px; 
+            height: fit-content; position: sticky; top: 2rem;
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Right Side: The Submissions */
+        /* RIGHT PANEL: FEED */
         .panel-feed {
-            flex: 1.5;
-            min-width: 320px;
-            background: rgba(30, 41, 59, 0.5);
-            padding: 2rem;
-            border-radius: 16px;
+            flex: 1.5; min-width: 320px;
+            background: rgba(30, 41, 59, 0.3);
+            padding: 2rem; border-radius: 16px;
             border: 1px solid rgba(255,255,255,0.05);
-            max-height: 80vh; /* Limits height */
-            overflow-y: auto; /* Makes it scrollable */
+            max-height: 85vh; overflow-y: auto;
         }
 
-        h1, h2 { color: var(--primary); margin-top: 0; }
+        h1, h2 { color: var(--primary); margin-top: 0; font-weight: 800; }
         
         input, textarea { 
             width: 100%; padding: 12px; margin-bottom: 1rem;
             background: #0f172a; border: 1px solid #334155;
             border-radius: 8px; color: white; box-sizing: border-box;
+            transition: 0.3s;
         }
+
+        input:focus, textarea:focus { outline: none; border-color: var(--primary); }
 
         button { 
             width: 100%; padding: 12px; background: var(--primary); 
             color: white; border: none; border-radius: 8px; 
-            font-weight: bold; cursor: pointer;
+            font-weight: bold; cursor: pointer; transition: 0.2s;
         }
 
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* SYSTEM LOG STYLE */
+        #systemLog {
+            margin-top: 1.5rem; font-family: 'Courier New', monospace;
+            font-size: 0.7rem; color: var(--accent);
+            background: #000; padding: 12px; border-radius: 6px;
+            height: 100px; overflow-y: auto; border: 1px solid #334155;
+        }
+
+        /* SUBMISSION CARDS */
         .submission-item { 
-            background: var(--card);
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+            background: var(--card); padding: 1.2rem;
+            border-radius: 12px; margin-bottom: 1rem;
             border-left: 4px solid var(--primary);
+            animation: slideIn 0.4s ease-out;
         }
 
-        .meta { font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
 
-        /* Custom Scrollbar for the feed */
-        .panel-feed::-webkit-scrollbar { width: 8px; }
-        .panel-feed::-webkit-scrollbar-track { background: var(--bg); }
-        .panel-feed::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .meta { font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px; font-weight: bold; }
+
+        /* SKELETON LOADING ANIMATION */
+        .skeleton {
+            height: 80px; width: 100%;
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 12px; margin-bottom: 1rem;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
     </style>
 </head>
 <body>
 
 <div class="dashboard">
     <div class="panel-form">
-        <h1>🧪 Launch</h1>
+        <h1>🧪 Lab Console</h1>
         <form id="experimentForm">
-            <input name="name" placeholder="Researcher Name" required />
-            <input name="email" type="email" placeholder="Email Address" required />
-            <textarea name="message" placeholder="Hypothesis/Idea..." rows="5" required></textarea>
-            <button type="submit" id="submitBtn">Send to Lab</button>
+            <input name="name" placeholder="Lead Researcher Name" required />
+            <input name="email" type="email" placeholder="Researcher Email" required />
+            <textarea name="message" placeholder="Hypothesis or Idea details..." rows="5" required></textarea>
+            <button type="submit" id="submitBtn">Transmit Data</button>
         </form>
+
+        <div id="systemLog">
+            [SYSTEM]: Initialize uplink...<br>
+            [SYSTEM]: Awaiting user input...
+        </div>
     </div>
 
     <div class="panel-feed">
-        <h2>📡 Live Feed</h2>
+        <h2>📡 Live Data Feed</h2>
         <div id="submissionsList">
-            <p style="text-align: center; color: #64748b;">Syncing with Render...</p>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
         </div>
     </div>
 </div>
@@ -111,20 +134,34 @@
     const backendURL = "https://experimental-portal-progress.onrender.com"; 
     const form = document.getElementById("experimentForm");
     const list = document.getElementById("submissionsList");
+    const log = document.getElementById("systemLog");
+
+    function addLog(msg) {
+        const time = new Date().toLocaleTimeString();
+        log.innerHTML = `[${time}] ${msg}<br>` + log.innerHTML;
+    }
 
     async function loadSubmissions() {
+        addLog("GET /submissions: Requesting data...");
         try {
             const res = await fetch(`${backendURL}/submissions`);
             const data = await res.json();
-            list.innerHTML = data.length ? "" : "<p>No data in feed.</p>";
+            
+            list.innerHTML = ""; // Clear skeletons
+            if(data.length === 0) {
+                list.innerHTML = "<p style='text-align:center; color:#64748b;'>Database empty. Standing by.</p>";
+            }
+
             data.reverse().forEach(s => {
                 const div = document.createElement("div");
                 div.className = "submission-item";
-                div.innerHTML = `<div class="meta">${s.name}</div><div>${s.message}</div>`;
+                div.innerHTML = `<div class="meta">${s.name.toUpperCase()} // RESEARCHER</div><div>${s.message}</div>`;
                 list.appendChild(div);
             });
+            addLog("SUCCESS: Data rendered to feed.");
         } catch (e) {
-            list.innerHTML = "<p style='color: #ef4444;'>Uplink Error. Check Render status.</p>";
+            addLog("ERROR: Backend unreachable. Service may be sleeping.");
+            list.innerHTML = "<p style='color: #ef4444; text-align:center;'>Uplink Interrupted. Reconnecting...</p>";
         }
     }
 
@@ -133,6 +170,7 @@
         const btn = document.getElementById("submitBtn");
         btn.disabled = true;
         btn.innerText = "Transmitting...";
+        addLog("POST /submit: Sending payload...");
 
         const payload = {
             name: form.name.value,
@@ -148,18 +186,21 @@
             });
 
             if(res.ok) {
+                addLog("SUCCESS: Data accepted by Render.");
                 form.reset();
                 loadSubmissions();
             }
         } catch (err) {
-            alert("Transmission failed.");
+            addLog("CRITICAL: Transmission failed.");
+            alert("Check console for error logs.");
         } finally {
             btn.disabled = false;
-            btn.innerText = "Send to Lab";
+            btn.innerText = "Transmit Data";
         }
     };
 
-    loadSubmissions();
+    // Initial Load
+    setTimeout(loadSubmissions, 1000); // Small delay to show off the skeleton effect
 </script>
 </body>
 </html>
