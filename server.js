@@ -1,45 +1,28 @@
-require("dotenv").config();
-const express = require("express");
-const pool = require("./db");
-const cors = require("cors");
-
+const express = require('express');
+const cors = require('cors');
+const path = require('path'); // Added this
 const app = express();
-app.use(cors()); // allow browser requests
-app.use(express.json()); // needed for POST requests
 
-// Test route
-app.get("/", async (req, res) => {
-  const result = await pool.query("SELECT NOW()");
-  res.json({ time: result.rows[0] });
+app.use(cors());
+app.use(express.json());
+
+// Temporary storage (resets when Render sleeps)
+let submissions = [];
+
+// API Endpoints
+app.get('/submissions', (req, res) => {
+    res.json(submissions);
 });
 
-// POST route for form submissions
-app.post("/submit", async (req, res) => {
-  const { name, email, message } = req.body;
-  try {
-    const result = await pool.query(
-      "INSERT INTO submissions (name, email, message) VALUES ($1, $2, $3) RETURNING *",
-      [name, email, message]
-    );
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Database error" });
-  }
+app.post('/submit', (req, res) => {
+    const { name, email, message } = req.body;
+    if (name && message) {
+        submissions.push({ name, email, message, id: Date.now() });
+        return res.status(201).json({ status: "success" });
+    }
+    res.status(400).json({ status: "error" });
 });
 
-// GET route to see all submissions (optional for portfolio)
-app.get("/submissions", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM submissions ORDER BY created_at DESC");
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Database error" });
-  }
-});
-
-// START SERVER
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
-});
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server live on port ${PORT}`));
