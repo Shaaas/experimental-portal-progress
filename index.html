@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <title>Experimental Portal</title>
+<style>
+  body { font-family: sans-serif; padding: 2rem; }
+  input, textarea { display:block; margin:1rem 0; width: 300px; padding:0.5rem; }
+  button { padding: 0.5rem 1rem; cursor:pointer; }
+</style>
 </head>
 <body>
 <h1>Submit Your Experiment</h1>
@@ -13,7 +18,12 @@
   <button type="submit">Send</button>
 </form>
 
+<h2>Submissions</h2>
+<ul id="submissionsList"></ul>
+
 <script>
+const backendURL = "https://YOUR_RENDER_URL"; // replace with your Render URL
+
 document.getElementById("experimentForm").onsubmit = async (e) => {
   e.preventDefault();
   const form = e.target;
@@ -23,7 +33,7 @@ document.getElementById("experimentForm").onsubmit = async (e) => {
     message: form.message.value
   };
 
-  const res = await fetch("https://YOUR_RENDER_URL/submit", {
+  const res = await fetch(`${backendURL}/submit`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
@@ -32,10 +42,27 @@ document.getElementById("experimentForm").onsubmit = async (e) => {
   if(res.ok){
     alert("Submitted ✨");
     form.reset();
+    loadSubmissions();
   } else {
     alert("Error submitting 😞");
   }
 };
+
+// Optional: load all submissions
+async function loadSubmissions(){
+  const res = await fetch(`${backendURL}/submissions`);
+  const submissions = await res.json();
+  const list = document.getElementById("submissionsList");
+  list.innerHTML = "";
+  submissions.forEach(s => {
+    const li = document.createElement("li");
+    li.textContent = `${s.name} (${s.email}): ${s.message}`;
+    list.appendChild(li);
+  });
+}
+
+// Load submissions on page load
+loadSubmissions();
 </script>
 </body>
 </html>
