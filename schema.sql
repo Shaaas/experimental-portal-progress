@@ -1,4 +1,3 @@
--- PostgreSQL schema 
 CREATE TABLE submissions (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
@@ -7,4 +6,3 @@ CREATE TABLE submissions (
   reviewed BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
