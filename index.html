@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Experimental Portal</title>
+    <title>Experimental Portal | Dashboard</title>
     <style>
         :root {
             --primary: #6366f1;
@@ -17,90 +17,93 @@
             background-color: var(--bg); 
             color: var(--text);
             margin: 0;
+            padding: 2rem;
             display: flex;
             justify-content: center;
-            padding: 2rem;
         }
 
-        .container { 
+        /* The Main Layout Wrapper */
+        .dashboard {
+            display: flex;
+            gap: 2rem;
             width: 100%;
-            max-width: 500px; 
+            max-width: 1000px;
+            flex-wrap: wrap; /* Stacks on mobile */
+        }
+
+        /* Left Side: The Form */
+        .panel-form { 
+            flex: 1;
+            min-width: 320px;
             background: var(--card); 
             padding: 2rem; 
             border-radius: 16px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            height: fit-content;
+            position: sticky; /* Stays in place while scrolling */
+            top: 2rem;
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 1.5rem; color: var(--primary); }
-
-        input, textarea { 
-            width: 100%; 
-            padding: 12px; 
-            margin-bottom: 1rem;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            color: white;
-            box-sizing: border-box;
-            transition: border 0.3s;
+        /* Right Side: The Submissions */
+        .panel-feed {
+            flex: 1.5;
+            min-width: 320px;
+            background: rgba(30, 41, 59, 0.5);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+            max-height: 80vh; /* Limits height */
+            overflow-y: auto; /* Makes it scrollable */
         }
 
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        h1, h2 { color: var(--primary); margin-top: 0; }
+        
+        input, textarea { 
+            width: 100%; padding: 12px; margin-bottom: 1rem;
+            background: #0f172a; border: 1px solid #334155;
+            border-radius: 8px; color: white; box-sizing: border-box;
         }
 
         button { 
-            width: 100%; 
-            padding: 12px; 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+            width: 100%; padding: 12px; background: var(--primary); 
+            color: white; border: none; border-radius: 8px; 
+            font-weight: bold; cursor: pointer;
         }
 
-        button:hover { background: #4f46e5; transform: translateY(-1px); }
-        button:active { transform: translateY(0); }
-
-        h2 { font-size: 1.2rem; margin-top: 2rem; border-bottom: 1px solid #334155; padding-bottom: 0.5rem; }
-
         .submission-item { 
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--card);
             padding: 1rem;
             border-radius: 8px;
             margin-bottom: 1rem;
             border-left: 4px solid var(--primary);
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .meta { font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px; }
+
+        /* Custom Scrollbar for the feed */
+        .panel-feed::-webkit-scrollbar { width: 8px; }
+        .panel-feed::-webkit-scrollbar-track { background: var(--bg); }
+        .panel-feed::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>🧪 Experimental Portal</h1>
-    
-    <form id="experimentForm">
-        <input name="name" placeholder="Researcher Name" required />
-        <input name="email" type="email" placeholder="Email Address" required />
-        <textarea name="message" placeholder="What's the hypothesis?" rows="4" required></textarea>
-        <button type="submit" id="submitBtn">Launch Experiment</button>
-    </form>
+<div class="dashboard">
+    <div class="panel-form">
+        <h1>🧪 Launch</h1>
+        <form id="experimentForm">
+            <input name="name" placeholder="Researcher Name" required />
+            <input name="email" type="email" placeholder="Email Address" required />
+            <textarea name="message" placeholder="Hypothesis/Idea..." rows="5" required></textarea>
+            <button type="submit" id="submitBtn">Send to Lab</button>
+        </form>
+    </div>
 
-    <h2>Recent Discoveries</h2>
-    <div id="submissionsList">
-        <p style="text-align: center; color: #64748b;">Awaiting signal from Render...</p>
+    <div class="panel-feed">
+        <h2>📡 Live Feed</h2>
+        <div id="submissionsList">
+            <p style="text-align: center; color: #64748b;">Syncing with Render...</p>
+        </div>
     </div>
 </div>
 
@@ -113,7 +116,7 @@
         try {
             const res = await fetch(`${backendURL}/submissions`);
             const data = await res.json();
-            list.innerHTML = data.length ? "" : "<p style='text-align:center'>The lab is empty.</p>";
+            list.innerHTML = data.length ? "" : "<p>No data in feed.</p>";
             data.reverse().forEach(s => {
                 const div = document.createElement("div");
                 div.className = "submission-item";
@@ -121,7 +124,7 @@
                 list.appendChild(div);
             });
         } catch (e) {
-            list.innerHTML = "<p style='color: #ef4444; text-align: center;'>Portal offline. Wake up the server!</p>";
+            list.innerHTML = "<p style='color: #ef4444;'>Uplink Error. Check Render status.</p>";
         }
     }
 
@@ -129,7 +132,7 @@
         e.preventDefault();
         const btn = document.getElementById("submitBtn");
         btn.disabled = true;
-        btn.innerText = "Processing...";
+        btn.innerText = "Transmitting...";
 
         const payload = {
             name: form.name.value,
@@ -149,10 +152,10 @@
                 loadSubmissions();
             }
         } catch (err) {
-            alert("Uplink failed.");
+            alert("Transmission failed.");
         } finally {
             btn.disabled = false;
-            btn.innerText = "Launch Experiment";
+            btn.innerText = "Send to Lab";
         }
     };
 
