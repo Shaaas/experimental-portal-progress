@@ -1,23 +1,19 @@
 require("dotenv").config();
 const express = require("express");
 const pool = require("./db");
+const cors = require("cors");
 
 const app = express();
-const cors = require("cors");
-app.use(cors()); // <--- allow browser requests
+app.use(cors()); // allow browser requests
+app.use(express.json()); // needed for POST requests
 
-
+// Test route
 app.get("/", async (req, res) => {
   const result = await pool.query("SELECT NOW()");
   res.json({ time: result.rows[0] });
 });
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
-});
-// Server setup coming soon
-app.use(express.json()); // already needed for POST
-
+// POST route for form submissions
 app.post("/submit", async (req, res) => {
   const { name, email, message } = req.body;
   try {
@@ -32,3 +28,18 @@ app.post("/submit", async (req, res) => {
   }
 });
 
+// GET route to see all submissions (optional for portfolio)
+app.get("/submissions", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM submissions ORDER BY created_at DESC");
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+// START SERVER
+app.listen(5000, () => {
+  console.log("Server running on port 5000");
+});
